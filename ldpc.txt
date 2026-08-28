@@ -1,0 +1,19 @@
+import komm
+import numpy as np
+source = komm.DiscreteMemorylessSource([0.5,0.5])
+np.loadtxt('/home/ricardowagner/NextCloud2/Drive/Faculdade/TCC1/Codigos/base_matrices/NR_1_2_20.txt', dtype=int)
+B = np.loadtxt('/home/ricardowagner/NextCloud2/Drive/Faculdade/TCC1/Codigos/base_matrices/NR_1_2_20.txt', dtype=int)
+m, n = B.shape
+m, n
+z = 20
+msg = source.emit((n-m)*z)
+msg
+from ldpc import *
+x = np.array([1,0,1,1,0])
+mult_shift(x,-1)
+mult_shift(x,0)
+mult_shift(x,1)
+cword = nr_ldpc_encode(B, z, msg)
+cword
+check_cword(B,z,cword)
+
