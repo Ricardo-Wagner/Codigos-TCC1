@@ -1,0 +1,328 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: first_ldpc
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: ldpc_H_matrix
+  id: variable_ldpc_H_matrix_def
+  parameters:
+    comment: ''
+    filename: /home/ricardowagner/NextCloud2/Drive/Faculdade/TCC1/Codigos/alists/bg2_ils0_zc2_gap1.alist
+    gap: '1'
+    value: '"ok"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 8.0]
+    rotation: 0
+    state: enabled
+- name: ldpc_decoder
+  id: variable_ldpc_decoder_def
+  parameters:
+    comment: ''
+    dim1: '4'
+    dim2: '4'
+    file: /home/ricardowagner/NextCloud2/Drive/Faculdade/TCC1/Codigos/alists/bg2_ils0_zc2_gap1.alist
+    max_iter: '50'
+    ndim: '0'
+    value: '"ok"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [824, 8.0]
+    rotation: 0
+    state: enabled
+- name: ldpc_encoder
+  id: variable_ldpc_encoder_H_def
+  parameters:
+    H: ldpc_H_matrix
+    comment: ''
+    dim1: '1'
+    dim2: '1'
+    ndim: '0'
+    value: '"ok"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [536, 8.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 8.0]
+    rotation: 0
+    state: enabled
+- name: blocks_char_to_float_0
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [672, 400.0]
+    rotation: 0
+    state: enabled
+- name: blocks_char_to_float_1
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 288.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_source_0
+  id: blocks_file_source
+  parameters:
+    affinity: ''
+    alias: ''
+    begin_tag: pmt.PMT_NIL
+    comment: ''
+    file: /home/ricardowagner/NextCloud2/Drive/Faculdade/TCC1/GNU_Radio/alice.txt
+    length: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    repeat: 'True'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 120.0]
+    rotation: 0
+    state: enabled
+- name: blocks_pack_k_bits_bb_0
+  id: blocks_pack_k_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    k: '8'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 288.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [448, 144.0]
+    rotation: 0
+    state: enabled
+- name: blocks_unpack_k_bits_bb_0
+  id: blocks_unpack_k_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    k: '8'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 152.0]
+    rotation: 0
+    state: enabled
+- name: fec_generic_decoder_0
+  id: fec_generic_decoder
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decoder: ldpc_decoder
+    itype: float
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    otype: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 288.0]
+    rotation: 0
+    state: enabled
+- name: fec_generic_encoder_0
+  id: fec_generic_encoder
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    encoder: ldpc_encoder
+    itype: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    otype: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [664, 152.0]
+    rotation: 0
+    state: enabled
+- name: network_tcp_sink_0
+  id: network_tcp_sink
+  parameters:
+    addr: 127.0.0.1
+    affinity: ''
+    alias: ''
+    comment: ''
+    mode: '2'
+    port: '2000'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [920, 280.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_sink_x_0
+  id: qtgui_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    bw: samp_rate
+    comment: ''
+    fc: '0'
+    fftsize: '1024'
+    gui_hint: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    plotconst: 'True'
+    plotfreq: 'True'
+    plottime: 'True'
+    plotwaterfall: 'True'
+    rate: '10'
+    showports: 'False'
+    showrf: 'False'
+    type: float
+    wintype: window.WIN_BLACKMAN_hARRIS
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [872, 368.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: fio
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [920, 152.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: fio
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [72, 288.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_char_to_float_0, '0', qtgui_sink_x_0, '0']
+- [blocks_char_to_float_1, '0', fec_generic_decoder_0, '0']
+- [blocks_file_source_0, '0', blocks_unpack_k_bits_bb_0, '0']
+- [blocks_pack_k_bits_bb_0, '0', network_tcp_sink_0, '0']
+- [blocks_throttle2_0, '0', fec_generic_encoder_0, '0']
+- [blocks_unpack_k_bits_bb_0, '0', blocks_throttle2_0, '0']
+- [fec_generic_decoder_0, '0', blocks_char_to_float_0, '0']
+- [fec_generic_decoder_0, '0', blocks_pack_k_bits_bb_0, '0']
+- [fec_generic_encoder_0, '0', virtual_sink_0, '0']
+- [virtual_source_0, '0', blocks_char_to_float_1, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0
