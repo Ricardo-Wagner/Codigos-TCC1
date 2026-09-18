@@ -13,7 +13,7 @@ ZC_SETS = {
     7: [15, 30, 60, 120, 240],
 }
 
-def load_raw_V(i, i_LS, table_dir="v_matrices"):
+def load_raw_V(i, i_LS, table_dir="v_inv_matrices"):
     """
     Carrega a tabela crua V(r,c) — que é simplesmente o arquivo do
     Zc MÁXIMO daquele i_LS (ex: NR_1_0_256.txt), já que V é
@@ -24,7 +24,7 @@ def load_raw_V(i, i_LS, table_dir="v_matrices"):
     return np.loadtxt(path, dtype=int)
 
 
-def protograph(i=1, i_LS=0, Zc=2, table_dir="v_matrices"):
+def protograph(i=1, i_LS=0, Zc=2, table_dir="v_inv_matrices"):
     if Zc not in ZC_SETS[i_LS]:
         raise ValueError(f"Zc={Zc} não pertence ao i_LS={i_LS}. "
                           f"Válidos: {ZC_SETS[i_LS]}")
@@ -53,6 +53,5 @@ def protograph_to_alist(protograph, Zc, output_file):
     reaproveitando a write_alist_file já validada do GNU Radio.
     """
     H = expand_protograph(protograph, Zc)
-    bestH, gap = get_best_matrix(H, numIterations=50)
-    write_alist_file(output_file, bestH)
-    return bestH, gap
+    write_alist_file(output_file, H)
+    return H
