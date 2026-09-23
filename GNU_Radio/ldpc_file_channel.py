@@ -27,6 +27,7 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import network
+import ldpc_file_channel_epy_block_0 as epy_block_0  # embedded python block
 import numpy as np
 import sip
 import threading
@@ -69,12 +70,12 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.z = z = 4
         self.bits_per_symbol = bits_per_symbol = 1
-        self.bit_rate = bit_rate = 100e3
-        self.sps = sps = 50
+        self.bit_rate = bit_rate = 800e3
+        self.z = z = 16
+        self.sps = sps = 10
         self.ils = ils = 0
-        self.gap = gap = z*4
+        self.gap = gap = 1
         self.bg = bg = 1
         self.baud_rate = baud_rate = bit_rate/bits_per_symbol
         self.samp_rate = samp_rate = baud_rate*sps
@@ -82,14 +83,15 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.rrc_filter_taps = rrc_filter_taps = firdes.root_raised_cosine(sps, samp_rate,baud_rate, 0.25, (11*sps))
         self.ldpc_H_matrix = ldpc_H_matrix = fec.ldpc_H_matrix(path_alist, gap)
         self.taps = taps = np.array(rrc_filter_taps)
-        self.preambulo = preambulo = 64
+        self.preambulo = preambulo = 32
         self.payload_len = payload_len = 68*z
         self.noise_voltage = noise_voltage = 0
-        self.ldpc_encoder = ldpc_encoder = list(map((lambda a: fec.ldpc_par_mtrx_encoder_make_H(ldpc_H_matrix)),range(0,4)))
-        self.ldpc_decoder = ldpc_decoder = fec.ldpc_bit_flip_decoder.make(ldpc_H_matrix.get_base_sptr(),5)
+        self.ldpc_encoder = ldpc_encoder = fec.ldpc_par_mtrx_encoder_make_H(ldpc_H_matrix)
+        self.ldpc_decoder = ldpc_decoder = fec.ldpc_decoder.make(path_alist, 10)
         self.const = const = digital.constellation_bpsk().base()
         self.const.set_npwr(1.0)
         self.access_code = access_code = "11100001010110101110100010010011"
+        self.K = K = 22*z
 
         ##################################################
         # Blocks
@@ -107,7 +109,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
         self.tabs.addTab(self.tabs_widget_1, 'Receptor')
         self.top_layout.addWidget(self.tabs)
-        self._noise_voltage_range = qtgui.Range(0, 4, 0.01, 0, 200)
+        self._noise_voltage_range = qtgui.Range(0, 8, 0.1, 0, 200)
         self._noise_voltage_win = qtgui.RangeWidget(self._noise_voltage_range, self.set_noise_voltage, "'noise_voltage'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._noise_voltage_win)
         self.qtgui_sink_x_1_0 = qtgui.sink_f(
@@ -204,7 +206,8 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_ccc(sps, taps)
         self.interp_fir_filter_xxx_0.declare_sample_delay(0)
         self.fec_extended_encoder_0 = fec.extended_encoder(encoder_obj_list=ldpc_encoder, threading='capillary', puncpat='11')
-        self.fec_extended_decoder_0 = fec.extended_decoder(decoder_obj_list=ldpc_decoder, threading='ordinary', ann=None, puncpat='11', integration_period=10000)
+        self.fec_extended_decoder_0 = fec.extended_decoder(decoder_obj_list=ldpc_decoder, threading='capillary', ann=None, puncpat='11', integration_period=10000)
+        self.epy_block_0 = epy_block_0.blk(access_code=access_code, payload_len_in_bits=payload_len, threshold=2)
         self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
             digital.TED_MUELLER_AND_MULLER,
             sps,
@@ -217,9 +220,6 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
             digital.IR_MMSE_8TAP,
             128,
             [])
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc((2*np.pi/100), 2, False)
-        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_ff_ts(access_code,
-          2, '')
         self.digital_constellation_soft_decoder_cf_0 = digital.constellation_soft_decoder_cf(const, -1)
         self.digital_constellation_encoder_bc_0 = digital.constellation_encoder_bc(const)
         self.channels_channel_model_0 = channels.channel_model(
@@ -229,7 +229,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
             taps=[1.0],
             noise_seed=0,
             block_tags=False)
-        self.blocks_vector_source_x_0 = blocks.vector_source_b((0xE1, 0x5A, 0xE8, 0x93, 0x00, 0x22, 0x00, 0x22), True, 1, [])
+        self.blocks_vector_source_x_0 = blocks.vector_source_b((0xE1, 0x5A, 0xE8, 0x93), True, 1, [])
         self.blocks_unpack_k_bits_bb_0_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_throttle2_0_0 = blocks.throttle( gr.sizeof_char*1, bit_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * bit_rate) if "auto" == "time" else int(0.1), 1) )
@@ -258,11 +258,10 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_unpack_k_bits_bb_0_0, 0))
         self.connect((self.channels_channel_model_0, 0), (self.interp_fir_filter_xxx_1, 0))
         self.connect((self.digital_constellation_encoder_bc_0, 0), (self.interp_fir_filter_xxx_0, 0))
-        self.connect((self.digital_constellation_soft_decoder_cf_0, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
-        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.fec_extended_decoder_0, 0))
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.digital_constellation_soft_decoder_cf_0, 0))
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_sink_x_0_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_costas_loop_cc_0, 0))
+        self.connect((self.digital_constellation_soft_decoder_cf_0, 0), (self.epy_block_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_constellation_soft_decoder_cf_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_sink_x_0_0, 0))
+        self.connect((self.epy_block_0, 0), (self.fec_extended_decoder_0, 0))
         self.connect((self.fec_extended_decoder_0, 0), (self.blocks_pack_k_bits_bb_0, 0))
         self.connect((self.fec_extended_encoder_0, 0), (self.blocks_stream_mux_0, 1))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.channels_channel_model_0, 0))
@@ -279,15 +278,6 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
 
         event.accept()
 
-    def get_z(self):
-        return self.z
-
-    def set_z(self, z):
-        self.z = z
-        self.set_gap(self.z*4)
-        self.set_path_alist("../alists/NR_{}_{}_{}_{}.alist".format(self.bg, self.ils, self.z, self.gap))
-        self.set_payload_len(68*self.z)
-
     def get_bits_per_symbol(self):
         return self.bits_per_symbol
 
@@ -302,6 +292,15 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.bit_rate = bit_rate
         self.set_baud_rate(self.bit_rate/self.bits_per_symbol)
         self.blocks_throttle2_0_0.set_sample_rate(self.bit_rate)
+
+    def get_z(self):
+        return self.z
+
+    def set_z(self, z):
+        self.z = z
+        self.set_K(22*self.z)
+        self.set_path_alist("../alists/NR_{}_{}_{}_{}.alist".format(self.bg, self.ils, self.z, self.gap))
+        self.set_payload_len(68*self.z)
 
     def get_sps(self):
         return self.sps
@@ -395,6 +394,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.payload_len = payload_len
         self.blocks_stream_to_tagged_stream_0.set_packet_len((self.preambulo + self.payload_len))
         self.blocks_stream_to_tagged_stream_0.set_packet_len_pmt((self.preambulo + self.payload_len))
+        self.epy_block_0.payload_len_in_bits = self.payload_len
 
     def get_noise_voltage(self):
         return self.noise_voltage
@@ -428,6 +428,13 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
 
     def set_access_code(self, access_code):
         self.access_code = access_code
+        self.epy_block_0.access_code = self.access_code
+
+    def get_K(self):
+        return self.K
+
+    def set_K(self, K):
+        self.K = K
 
 
 

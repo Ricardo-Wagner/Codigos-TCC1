@@ -33,6 +33,18 @@ options:
     state: enabled
 
 blocks:
+- name: K
+  id: variable
+  parameters:
+    comment: ''
+    value: 22*z
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1296, 104.0]
+    rotation: 0
+    state: enabled
 - name: access_code
   id: variable
   parameters:
@@ -73,7 +85,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 100e3
+    value: 800e3
   states:
     bus_sink: false
     bus_source: false
@@ -117,7 +129,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: z*4
+    value: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -169,20 +181,20 @@ blocks:
     rotation: 0
     state: disabled
 - name: ldpc_decoder
-  id: variable_ldpc_bit_flip_decoder_def
+  id: variable_ldpc_decoder_def
   parameters:
     comment: ''
-    dim1: '1'
-    dim2: '1'
-    matrix_object: ldpc_H_matrix
-    max_iterations: '5'
+    dim1: '4'
+    dim2: '4'
+    file: path_alist
+    max_iter: '10'
     ndim: '0'
     value: '"ok"'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1528, 8.0]
+    coordinate: [568, 8.0]
     rotation: 0
     state: enabled
 - name: ldpc_encoder
@@ -192,7 +204,7 @@ blocks:
     comment: ''
     dim1: '4'
     dim2: '3'
-    ndim: '1'
+    ndim: '0'
     value: '"ok"'
   states:
     bus_sink: false
@@ -211,8 +223,8 @@ blocks:
     orient: QtCore.Qt.Horizontal
     rangeType: float
     start: '0'
-    step: '0.01'
-    stop: '4'
+    step: '0.1'
+    stop: '8'
     value: '0'
     widget: counter_slider
   states:
@@ -250,7 +262,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '64'
+    value: '32'
   states:
     bus_sink: false
     bus_source: false
@@ -291,7 +303,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '50'
+    value: '10'
   states:
     bus_sink: false
     bus_source: false
@@ -315,7 +327,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '4'
+    value: '16'
   states:
     bus_sink: false
     bus_source: false
@@ -375,7 +387,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2176, 752.0]
+    coordinate: [1736, 840.0]
     rotation: 0
     state: enabled
 - name: blocks_pack_k_bits_bb_1
@@ -496,7 +508,7 @@ blocks:
     repeat: 'True'
     tags: '[]'
     type: byte
-    vector: (0xE1, 0x5A, 0xE8, 0x93, 0x00, 0x22, 0x00, 0x22)
+    vector: (0xE1, 0x5A, 0xE8, 0x93)
     vlen: '1'
   states:
     bus_sink: false
@@ -556,44 +568,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1200, 744.0]
-    rotation: 0
-    state: enabled
-- name: digital_correlate_access_code_xx_ts_0
-  id: digital_correlate_access_code_xx_ts
-  parameters:
-    access_code: access_code
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    tagname: ''
-    threshold: '2'
-    type: float
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1560, 736.0]
-    rotation: 0
-    state: enabled
-- name: digital_costas_loop_cc_0
-  id: digital_costas_loop_cc
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    order: '2'
-    use_snr: 'False'
-    w: 2*np.pi/100
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [792, 760.0]
+    coordinate: [888, 840.0]
     rotation: 0
     state: enabled
 - name: digital_symbol_sync_xx_0
@@ -623,6 +598,42 @@ blocks:
     coordinate: [432, 772.0]
     rotation: 0
     state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.basic_block):\n\
+      \    def __init__(self, access_code=\"10101010\", payload_len_in_bits=10, threshold=3):\n\
+      \        gr.basic_block.__init__(\n            self,\n            name='Find\
+      \ access code (soft)',\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
+      \        )\n        self.access_code = np.array([int(x) for x in access_code])\n\
+      \        self.payload_len_in_bits = payload_len_in_bits\n        self.threshold\
+      \ = threshold\n\n    def general_work(self, input_items, output_items):\n  \
+      \      in0 = input_items[0]\n        out0 = output_items[0]\n        ac_len\
+      \ = self.access_code.size\n        pl_len = self.payload_len_in_bits\n\n   \
+      \     if len(in0) < ac_len + pl_len:\n            return 0\n        if len(out0)\
+      \ < pl_len:\n            return 0\n\n        hard_bits = (in0[:ac_len] > 0).astype(int)\n\
+      \        hamming_dist = np.sum(hard_bits != self.access_code)\n\n        if\
+      \ hamming_dist > self.threshold:\n            self.consume(0, 1)\n         \
+      \   return 0\n\n        out0[:pl_len] = in0[ac_len: ac_len + pl_len] \n    \
+      \    self.consume(0, ac_len + pl_len)\n        return pl_len\n"
+    access_code: access_code
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    payload_len_in_bits: payload_len
+    threshold: '2'
+  states:
+    _io_cache: ('Find access code (soft)', 'blk', [('access_code', "'10101010'"),
+      ('payload_len_in_bits', '10'), ('threshold', '3')], [('0', 'float', 1)], [('0',
+      'float', 1)], '', ['access_code', 'payload_len_in_bits', 'threshold'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1208, 824.0]
+    rotation: 0
+    state: enabled
 - name: fec_extended_decoder_0
   id: fec_extended_decoder
   parameters:
@@ -634,13 +645,13 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     puncpat: '''11'''
-    threadtype: ordinary
+    threadtype: capillary
     value: fec_extended_decoder
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1912, 728.0]
+    coordinate: [1496, 816.0]
     rotation: 0
     state: enabled
 - name: fec_extended_encoder_0
@@ -727,7 +738,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2344, 744.0]
+    coordinate: [1896, 832.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0_0
@@ -756,7 +767,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 608.0]
+    coordinate: [888, 600.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0_0_0
@@ -947,12 +958,10 @@ connections:
 - [blocks_vector_source_x_0, '0', blocks_unpack_k_bits_bb_0_0, '0']
 - [channels_channel_model_0, '0', virtual_sink_1, '0']
 - [digital_constellation_encoder_bc_0, '0', interp_fir_filter_xxx_0, '0']
-- [digital_constellation_soft_decoder_cf_0, '0', digital_correlate_access_code_xx_ts_0,
-  '0']
-- [digital_correlate_access_code_xx_ts_0, '0', fec_extended_decoder_0, '0']
-- [digital_costas_loop_cc_0, '0', digital_constellation_soft_decoder_cf_0, '0']
-- [digital_costas_loop_cc_0, '0', qtgui_sink_x_0_0, '0']
-- [digital_symbol_sync_xx_0, '0', digital_costas_loop_cc_0, '0']
+- [digital_constellation_soft_decoder_cf_0, '0', epy_block_0, '0']
+- [digital_symbol_sync_xx_0, '0', digital_constellation_soft_decoder_cf_0, '0']
+- [digital_symbol_sync_xx_0, '0', qtgui_sink_x_0_0, '0']
+- [epy_block_0, '0', fec_extended_decoder_0, '0']
 - [fec_extended_decoder_0, '0', blocks_pack_k_bits_bb_0, '0']
 - [fec_extended_encoder_0, '0', blocks_stream_mux_0, '1']
 - [interp_fir_filter_xxx_0, '0', qtgui_sink_x_1, '0']

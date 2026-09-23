@@ -23,7 +23,7 @@ if zc in ZC_SETS[ils]:
         v_org = reorganizar_bg(v)
         np.savetxt(f"../v_inv_matrices/NR_{bg}_{ils}_{ZC_SETS[ils][-1]}.txt", v_org, fmt="%d", delimiter= " ")
         base_matrix = protograph(bg, ils, zc, f"../v_inv_matrices")
-        protograph_to_alist(base_matrix, zc, f"../alists/NR_{bg}_{ils}_{zc}_{zc*4}.alist")
+        protograph_to_alist(base_matrix, bg, zc, ils)
     else:
         print("bg invalido")
 else:

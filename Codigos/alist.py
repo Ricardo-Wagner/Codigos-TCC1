@@ -47,11 +47,12 @@ def expand_protograph(base_matrix, Zc):
     return H
 
 
-def protograph_to_alist(protograph, Zc, output_file):
+def protograph_to_alist(protograph, bg , Zc, ils):
     """
     Expande o protograph (via lifting) e escreve o .alist,
     reaproveitando a write_alist_file já validada do GNU Radio.
     """
     H = expand_protograph(protograph, Zc)
-    write_alist_file(output_file, H)
-    return H
+    bestH, gap = get_best_matrix(H, 50, verbose=True)
+    write_alist_file(f"../alists/NR_{bg}_{ils}_{Zc}_{gap}.alist", bestH)
+    return bestH, gap
