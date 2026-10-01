@@ -11,7 +11,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: ldpc_file_channel
+    id: ldpc_16_qam_main
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: ldpc_file_channel
+    title: ldpc_16_qam_main
     window_size: (1000,1000)
   states:
     bus_sink: false
@@ -42,7 +42,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1296, 104.0]
+    coordinate: [1608, 8.0]
     rotation: 0
     state: enabled
 - name: access_code
@@ -97,7 +97,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '1'
+    value: '4'
   states:
     bus_sink: false
     bus_source: false
@@ -117,7 +117,7 @@ blocks:
     rot_sym: '4'
     soft_dec_lut: None
     sym_map: '[0, 1, 3, 2]'
-    type: bpsk
+    type: 16qam
   states:
     bus_sink: false
     bus_source: false
@@ -125,6 +125,48 @@ blocks:
     coordinate: [8, 100.0]
     rotation: 0
     state: enabled
+- name: epsilon
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.99'
+    step: '0.0001'
+    stop: '1.01'
+    value: '1.0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 680.0]
+    rotation: 0
+    state: true
+- name: freq_offset
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: ''
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-0.002'
+    step: '0.00001'
+    stop: '0.002'
+    value: '0.0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [368, 680.0]
+    rotation: 0
+    state: true
 - name: gap
   id: variable
   parameters:
@@ -231,7 +273,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 488.0]
+    coordinate: [160, 680.0]
     rotation: 0
     state: enabled
 - name: path_alist
@@ -256,6 +298,18 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [968, 112.0]
+    rotation: 0
+    state: enabled
+- name: payload_len_bytes
+  id: variable
+  parameters:
+    comment: ''
+    value: payload_len/8
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1480, 8.0]
     rotation: 0
     state: enabled
 - name: preambulo
@@ -327,7 +381,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '16'
+    value: '4'
   states:
     bus_sink: false
     bus_source: false
@@ -349,7 +403,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1320, 408.0]
+    coordinate: [1032, 408.0]
     rotation: 0
     state: enabled
 - name: blocks_file_source_0
@@ -374,7 +428,75 @@ blocks:
     coordinate: [8, 360.0]
     rotation: 0
     state: enabled
-- name: blocks_pack_k_bits_bb_0
+- name: blocks_null_sink_0_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1128, 848.0]
+    rotation: 0
+    state: enabled
+- name: blocks_null_sink_0_0_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1128, 792.0]
+    rotation: 0
+    state: enabled
+- name: blocks_null_sink_0_1
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1128, 904.0]
+    rotation: 0
+    state: enabled
+- name: blocks_null_sink_0_2
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1128, 960.0]
+    rotation: 0
+    state: enabled
+- name: blocks_pack_k_bits_bb_0_0
   id: blocks_pack_k_bits_bb
   parameters:
     affinity: ''
@@ -387,7 +509,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1736, 840.0]
+    coordinate: [1848, 1048.0]
     rotation: 0
     state: enabled
 - name: blocks_pack_k_bits_bb_1
@@ -403,7 +525,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 320.0]
+    coordinate: [1032, 288.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_mux_0
@@ -422,26 +544,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [608, 312.0]
-    rotation: 0
-    state: enabled
-- name: blocks_stream_to_tagged_stream_0
-  id: blocks_stream_to_tagged_stream
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    len_tag_key: '"quadro"'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    packet_len: preambulo + payload_len
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [808, 312.0]
+    coordinate: [576, 328.0]
     rotation: 0
     state: enabled
 - name: blocks_throttle2_0_0
@@ -462,7 +565,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1112, 312.0]
+    coordinate: [768, 328.0]
     rotation: 0
     state: enabled
 - name: blocks_unpack_k_bits_bb_0
@@ -478,7 +581,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 392.0]
+    coordinate: [176, 392.0]
     rotation: 0
     state: enabled
 - name: blocks_unpack_k_bits_bb_0_0
@@ -494,7 +597,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [272, 280.0]
+    coordinate: [288, 280.0]
     rotation: 0
     state: enabled
 - name: blocks_vector_source_x_0
@@ -524,8 +627,8 @@ blocks:
     alias: ''
     block_tags: 'False'
     comment: ''
-    epsilon: '1.0'
-    freq_offset: '0.0'
+    epsilon: epsilon
+    freq_offset: freq_offset
     maxoutbuf: '0'
     minoutbuf: '0'
     noise_voltage: noise_voltage
@@ -535,7 +638,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [240, 608.0]
+    coordinate: [240, 540.0]
     rotation: 0
     state: enabled
 - name: digital_constellation_encoder_bc_0
@@ -551,7 +654,27 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1496, 320.0]
+    coordinate: [1200, 288.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_receiver_cb_0
+  id: digital_constellation_receiver_cb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: const
+    fmax: '0.05'
+    fmin: '-0.05'
+    loop_bw: 2*np.pi/100
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    showports: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 840.0]
     rotation: 0
     state: enabled
 - name: digital_constellation_soft_decoder_cf_0
@@ -563,12 +686,12 @@ blocks:
     constellation: const
     maxoutbuf: '0'
     minoutbuf: '0'
-    npwr: '-1'
+    npwr: max(noise_voltage**2,0.01)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [888, 840.0]
+    coordinate: [1384, 1040.0]
     rotation: 0
     state: enabled
 - name: digital_symbol_sync_xx_0
@@ -580,7 +703,7 @@ blocks:
     constellation: digital.constellation_bpsk().base()
     damping: '1.0'
     loop_bw: '0.045'
-    max_dev: '1.5'
+    max_dev: '0.1'
     maxoutbuf: '0'
     minoutbuf: '0'
     nfilters: '128'
@@ -589,52 +712,72 @@ blocks:
     resamp_type: digital.IR_MMSE_8TAP
     sps: sps
     ted_gain: '1.0'
-    ted_type: digital.TED_MUELLER_AND_MULLER
+    ted_type: digital.TED_GARDNER
     type: cc
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 772.0]
+    coordinate: [440, 884.0]
     rotation: 0
     state: enabled
-- name: epy_block_0
+- name: epy_block_0_0
   id: epy_block
   parameters:
     _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.basic_block):\n\
-      \    def __init__(self, access_code=\"10101010\", payload_len_in_bits=10, threshold=3):\n\
-      \        gr.basic_block.__init__(\n            self,\n            name='Find\
-      \ access code (soft)',\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
-      \        )\n        self.access_code = np.array([int(x) for x in access_code])\n\
+      \    def __init__(self, constellation=None, access_code=\"10101010\", payload_len_in_bits=272,\
+      \ threshold=5.0):\n        gr.basic_block.__init__(\n            self,\n   \
+      \         name='Find access code (symbol domain)',\n            in_sig=[np.complex64],\n\
+      \            out_sig=[np.complex64]\n        )\n        self.access_code = access_code\n\
       \        self.payload_len_in_bits = payload_len_in_bits\n        self.threshold\
-      \ = threshold\n\n    def general_work(self, input_items, output_items):\n  \
-      \      in0 = input_items[0]\n        out0 = output_items[0]\n        ac_len\
-      \ = self.access_code.size\n        pl_len = self.payload_len_in_bits\n\n   \
-      \     if len(in0) < ac_len + pl_len:\n            return 0\n        if len(out0)\
-      \ < pl_len:\n            return 0\n\n        hard_bits = (in0[:ac_len] > 0).astype(int)\n\
-      \        hamming_dist = np.sum(hard_bits != self.access_code)\n\n        if\
-      \ hamming_dist > self.threshold:\n            self.consume(0, 1)\n         \
-      \   return 0\n\n        out0[:pl_len] = in0[ac_len: ac_len + pl_len] \n    \
-      \    self.consume(0, ac_len + pl_len)\n        return pl_len\n"
+      \ = threshold\n        self.ref_symbols = np.array([], dtype=np.complex64)\n\
+      \        self.payload_len_in_symbols = 0\n        self._min_dist = [float('inf')]\
+      \ * 4\n        self._call_count = 0\n\n        if constellation is not None:\n\
+      \            self._setup(constellation)\n\n    def _setup(self, constellation):\n\
+      \        bps = constellation.bits_per_symbol()\n        bits = [int(b) for b\
+      \ in self.access_code]\n        assert len(bits) % bps == 0\n\n        ref =\
+      \ []\n        for i in range(0, len(bits), bps):\n            idx = 0\n    \
+      \        for b in bits[i:i+bps]:\n                idx = (idx << 1) | b\n   \
+      \         ref.append(constellation.map_to_points_v(idx)[0])\n        base =\
+      \ np.array(ref, dtype=np.complex64)\n\n        # as 4 rota\xE7\xF5es poss\xED\
+      veis da refer\xEAncia\n        self.rotations = [base * (1j ** k) for k in range(4)]\n\
+      \n        assert self.payload_len_in_bits % bps == 0\n        self.payload_len_in_symbols\
+      \ = self.payload_len_in_bits // bps\n\n    def general_work(self, input_items,\
+      \ output_items):\n        in0 = input_items[0]\n        out0 = output_items[0]\n\
+      \        ac_len = self.rotations[0].size\n        pl_len = self.payload_len_in_symbols\n\
+      \n        if ac_len == 0:\n            return 0\n        if len(in0) < ac_len\
+      \ + pl_len:\n            return 0\n        if len(out0) < pl_len:\n        \
+      \    return 0\n\n        window = in0[:ac_len]\n        dists = [np.sum(np.abs(window\
+      \ - ref)**2) for ref in self.rotations]\n        best_k = int(np.argmin(dists))\n\
+      \        best_dist = dists[best_k]\n\n        for k in range(4):\n         \
+      \   self._min_dist[k] = min(self._min_dist[k], dists[k])\n        self._call_count\
+      \ += 1\n        if self._call_count % 2000 == 0:\n            print(f\"menor\
+      \ dist_sq por rota\xE7\xE3o (0,90,180,270): {self._min_dist}\")\n          \
+      \  self._min_dist = [float('inf')] * 4\n\n        if best_dist > self.threshold:\n\
+      \            self.consume(0, 1)\n            return 0\n\n        out0[:pl_len]\
+      \ = in0[ac_len: ac_len + pl_len] * (1j ** (-best_k))  # j\xE1 corrige a rota\xE7\
+      \xE3o no payload\n        self.consume(0, ac_len + pl_len)\n        return pl_len\n"
     access_code: access_code
     affinity: ''
     alias: ''
     comment: ''
+    constellation: const
     maxoutbuf: '0'
     minoutbuf: '0'
     payload_len_in_bits: payload_len
     threshold: '2'
   states:
-    _io_cache: ('Find access code (soft)', 'blk', [('access_code', "'10101010'"),
-      ('payload_len_in_bits', '10'), ('threshold', '3')], [('0', 'float', 1)], [('0',
-      'float', 1)], '', ['access_code', 'payload_len_in_bits', 'threshold'])
+    _io_cache: ('Find access code (symbol domain)', 'blk', [('constellation', 'None'),
+      ('access_code', "'10101010'"), ('payload_len_in_bits', '272'), ('threshold',
+      '5.0')], [('0', 'complex', 1)], [('0', 'complex', 1)], '', ['access_code', 'payload_len_in_bits',
+      'threshold'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1208, 824.0]
+    coordinate: [1096, 1024.0]
     rotation: 0
     state: enabled
-- name: fec_extended_decoder_0
+- name: fec_extended_decoder_0_0
   id: fec_extended_decoder
   parameters:
     affinity: ''
@@ -651,7 +794,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1496, 816.0]
+    coordinate: [1624, 1024.0]
     rotation: 0
     state: enabled
 - name: fec_extended_encoder_0
@@ -669,7 +812,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [376, 376.0]
+    coordinate: [352, 376.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -682,7 +825,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 8.0]
+    coordinate: [1288, 8.0]
     rotation: 0
     state: enabled
 - name: interp_fir_filter_xxx_0
@@ -701,7 +844,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1744, 312.0]
+    coordinate: [1448, 280.0]
     rotation: 0
     state: enabled
 - name: interp_fir_filter_xxx_1
@@ -720,10 +863,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 824.0]
+    coordinate: [208, 976.0]
     rotation: 0
     state: enabled
-- name: network_tcp_sink_0
+- name: network_tcp_sink_0_0
   id: network_tcp_sink
   parameters:
     addr: 127.0.0.1
@@ -738,7 +881,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1896, 832.0]
+    coordinate: [2000, 1040.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0_0
@@ -767,7 +910,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [888, 600.0]
+    coordinate: [1104, 1152.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0_0_0
@@ -796,7 +939,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 968.0]
+    coordinate: [440, 1064.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_1
@@ -825,7 +968,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1960, 408.0]
+    coordinate: [1472, 136.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_1_0
@@ -854,7 +997,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1480, 376.0]
+    coordinate: [1200, 376.0]
     rotation: 0
     state: enabled
 - name: tabs
@@ -888,7 +1031,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1408, 8.0]
+    coordinate: [1360, 8.0]
     rotation: 0
     state: enabled
 - name: virtual_sink_0
@@ -901,7 +1044,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1976, 320.0]
+    coordinate: [1664, 288.0]
     rotation: 0
     state: enabled
 - name: virtual_sink_1
@@ -914,7 +1057,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [480, 648.0]
+    coordinate: [480, 580.0]
     rotation: 0
     state: enabled
 - name: virtual_source_0
@@ -927,7 +1070,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 648.0]
+    coordinate: [8, 580.0]
     rotation: 0
     state: enabled
 - name: virtual_source_1
@@ -940,17 +1083,16 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 832.0]
+    coordinate: [16, 984.0]
     rotation: 0
     state: enabled
 
 connections:
 - [blocks_char_to_float_0, '0', qtgui_sink_x_1_0, '0']
 - [blocks_file_source_0, '0', blocks_unpack_k_bits_bb_0, '0']
-- [blocks_pack_k_bits_bb_0, '0', network_tcp_sink_0, '0']
+- [blocks_pack_k_bits_bb_0_0, '0', network_tcp_sink_0_0, '0']
 - [blocks_pack_k_bits_bb_1, '0', digital_constellation_encoder_bc_0, '0']
-- [blocks_stream_mux_0, '0', blocks_stream_to_tagged_stream_0, '0']
-- [blocks_stream_to_tagged_stream_0, '0', blocks_throttle2_0_0, '0']
+- [blocks_stream_mux_0, '0', blocks_throttle2_0_0, '0']
 - [blocks_throttle2_0_0, '0', blocks_char_to_float_0, '0']
 - [blocks_throttle2_0_0, '0', blocks_pack_k_bits_bb_1, '0']
 - [blocks_unpack_k_bits_bb_0, '0', fec_extended_encoder_0, '0']
@@ -958,13 +1100,18 @@ connections:
 - [blocks_vector_source_x_0, '0', blocks_unpack_k_bits_bb_0_0, '0']
 - [channels_channel_model_0, '0', virtual_sink_1, '0']
 - [digital_constellation_encoder_bc_0, '0', interp_fir_filter_xxx_0, '0']
-- [digital_constellation_soft_decoder_cf_0, '0', epy_block_0, '0']
-- [digital_symbol_sync_xx_0, '0', digital_constellation_soft_decoder_cf_0, '0']
-- [digital_symbol_sync_xx_0, '0', qtgui_sink_x_0_0, '0']
-- [epy_block_0, '0', fec_extended_decoder_0, '0']
-- [fec_extended_decoder_0, '0', blocks_pack_k_bits_bb_0, '0']
+- [digital_constellation_encoder_bc_0, '0', qtgui_sink_x_1, '0']
+- [digital_constellation_receiver_cb_0, '0', blocks_null_sink_0_0_0, '0']
+- [digital_constellation_receiver_cb_0, '1', blocks_null_sink_0_0, '0']
+- [digital_constellation_receiver_cb_0, '2', blocks_null_sink_0_1, '0']
+- [digital_constellation_receiver_cb_0, '3', blocks_null_sink_0_2, '0']
+- [digital_constellation_receiver_cb_0, '4', epy_block_0_0, '0']
+- [digital_constellation_receiver_cb_0, '4', qtgui_sink_x_0_0, '0']
+- [digital_constellation_soft_decoder_cf_0, '0', fec_extended_decoder_0_0, '0']
+- [digital_symbol_sync_xx_0, '0', digital_constellation_receiver_cb_0, '0']
+- [epy_block_0_0, '0', digital_constellation_soft_decoder_cf_0, '0']
+- [fec_extended_decoder_0_0, '0', blocks_pack_k_bits_bb_0_0, '0']
 - [fec_extended_encoder_0, '0', blocks_stream_mux_0, '1']
-- [interp_fir_filter_xxx_0, '0', qtgui_sink_x_1, '0']
 - [interp_fir_filter_xxx_0, '0', virtual_sink_0, '0']
 - [interp_fir_filter_xxx_1, '0', digital_symbol_sync_xx_0, '0']
 - [interp_fir_filter_xxx_1, '0', qtgui_sink_x_0_0_0, '0']

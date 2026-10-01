@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: ldpc_file_channel
+# Title: test_ldpc_16qam_hard
 # GNU Radio version: 3.10.12.0
 
 from PyQt5 import Qt
@@ -27,19 +27,18 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import network
-import ldpc_file_channel_epy_block_0 as epy_block_0  # embedded python block
 import numpy as np
 import sip
 import threading
 
 
 
-class ldpc_file_channel(gr.top_block, Qt.QWidget):
+class test_ldpc_16qam_hard(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "ldpc_file_channel", catch_exceptions=True)
+        gr.top_block.__init__(self, "test_ldpc_16qam_hard", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("ldpc_file_channel")
+        self.setWindowTitle("test_ldpc_16qam_hard")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -57,7 +56,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "ldpc_file_channel")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "test_ldpc_16qam_hard")
 
         try:
             geometry = self.settings.value("geometry")
@@ -70,9 +69,9 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.bits_per_symbol = bits_per_symbol = 1
+        self.bits_per_symbol = bits_per_symbol = 4
         self.bit_rate = bit_rate = 800e3
-        self.z = z = 16
+        self.z = z = 4
         self.sps = sps = 10
         self.ils = ils = 0
         self.gap = gap = 1
@@ -81,14 +80,17 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate = baud_rate*sps
         self.path_alist = path_alist = "../alists/NR_{}_{}_{}_{}.alist".format(bg, ils, z, gap)
         self.rrc_filter_taps = rrc_filter_taps = firdes.root_raised_cosine(sps, samp_rate,baud_rate, 0.25, (11*sps))
+        self.payload_len = payload_len = 68*z
         self.ldpc_H_matrix = ldpc_H_matrix = fec.ldpc_H_matrix(path_alist, gap)
         self.taps = taps = np.array(rrc_filter_taps)
-        self.preambulo = preambulo = 32
-        self.payload_len = payload_len = 68*z
+        self.preambulo = preambulo = 64
+        self.payload_len_bytes = payload_len_bytes = payload_len/8
         self.noise_voltage = noise_voltage = 0
         self.ldpc_encoder = ldpc_encoder = fec.ldpc_par_mtrx_encoder_make_H(ldpc_H_matrix)
         self.ldpc_decoder = ldpc_decoder = fec.ldpc_decoder.make(path_alist, 10)
-        self.const = const = digital.constellation_bpsk().base()
+        self.freq_offset = freq_offset = 0.0
+        self.epsilon = epsilon = 1.0
+        self.const = const = digital.constellation_16qam().base()
         self.const.set_npwr(1.0)
         self.access_code = access_code = "11100001010110101110100010010011"
         self.K = K = 22*z
@@ -112,6 +114,12 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self._noise_voltage_range = qtgui.Range(0, 8, 0.1, 0, 200)
         self._noise_voltage_win = qtgui.RangeWidget(self._noise_voltage_range, self.set_noise_voltage, "'noise_voltage'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._noise_voltage_win)
+        self._freq_offset_range = qtgui.Range(-0.002, 0.002, 0.00001, 0.0, 200)
+        self._freq_offset_win = qtgui.RangeWidget(self._freq_offset_range, self.set_freq_offset, "'freq_offset'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._freq_offset_win)
+        self._epsilon_range = qtgui.Range(0.99, 1.01, 0.0001, 1.0, 200)
+        self._epsilon_win = qtgui.RangeWidget(self._epsilon_range, self.set_epsilon, "'epsilon'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._epsilon_win)
         self.qtgui_sink_x_1_0 = qtgui.sink_f(
             1024, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -156,6 +164,28 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_0.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_0.setColumnStretch(c, 1)
+        self.qtgui_sink_x_0_0_1 = qtgui.sink_c(
+            1024, #fftsize
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "", #name
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True, #plotconst
+            None # parent
+        )
+        self.qtgui_sink_x_0_0_1.set_update_time(1.0/10)
+        self._qtgui_sink_x_0_0_1_win = sip.wrapinstance(self.qtgui_sink_x_0_0_1.qwidget(), Qt.QWidget)
+
+        self.qtgui_sink_x_0_0_1.enable_rf_freq(False)
+
+        self.tabs_grid_layout_1.addWidget(self._qtgui_sink_x_0_0_1_win, 3, 0, 1, 1)
+        for r in range(3, 4):
+            self.tabs_grid_layout_1.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.tabs_grid_layout_1.setColumnStretch(c, 1)
         self.qtgui_sink_x_0_0_0 = qtgui.sink_c(
             1024, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -178,28 +208,6 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
             self.tabs_grid_layout_1.setRowStretch(r, 1)
         for c in range(0, 1):
             self.tabs_grid_layout_1.setColumnStretch(c, 1)
-        self.qtgui_sink_x_0_0 = qtgui.sink_c(
-            1024, #fftsize
-            window.WIN_BLACKMAN_hARRIS, #wintype
-            0, #fc
-            samp_rate, #bw
-            "", #name
-            True, #plotfreq
-            True, #plotwaterfall
-            True, #plottime
-            True, #plotconst
-            None # parent
-        )
-        self.qtgui_sink_x_0_0.set_update_time(1.0/10)
-        self._qtgui_sink_x_0_0_win = sip.wrapinstance(self.qtgui_sink_x_0_0.qwidget(), Qt.QWidget)
-
-        self.qtgui_sink_x_0_0.enable_rf_freq(False)
-
-        self.tabs_grid_layout_1.addWidget(self._qtgui_sink_x_0_0_win, 3, 0, 1, 1)
-        for r in range(3, 4):
-            self.tabs_grid_layout_1.setRowStretch(r, 1)
-        for c in range(0, 1):
-            self.tabs_grid_layout_1.setColumnStretch(c, 1)
         self.network_tcp_sink_0 = network.tcp_sink(gr.sizeof_char, 1, '127.0.0.1', 2000,2)
         self.interp_fir_filter_xxx_1 = filter.interp_fir_filter_ccc(1, taps/sps)
         self.interp_fir_filter_xxx_1.declare_sample_delay(0)
@@ -207,29 +215,31 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.interp_fir_filter_xxx_0.declare_sample_delay(0)
         self.fec_extended_encoder_0 = fec.extended_encoder(encoder_obj_list=ldpc_encoder, threading='capillary', puncpat='11')
         self.fec_extended_decoder_0 = fec.extended_decoder(decoder_obj_list=ldpc_decoder, threading='capillary', ann=None, puncpat='11', integration_period=10000)
-        self.epy_block_0 = epy_block_0.blk(access_code=access_code, payload_len_in_bits=payload_len, threshold=2)
         self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
-            digital.TED_MUELLER_AND_MULLER,
+            digital.TED_GARDNER,
             sps,
             0.045,
             1.0,
             1.0,
-            1.5,
+            0.1,
             1,
             digital.constellation_bpsk().base(),
             digital.IR_MMSE_8TAP,
             128,
             [])
-        self.digital_constellation_soft_decoder_cf_0 = digital.constellation_soft_decoder_cf(const, -1)
+        self.digital_correlate_access_code_xx_ts_0 = digital.correlate_access_code_bb_ts(access_code,
+          3, '')
+        self.digital_constellation_receiver_cb_0 = digital.constellation_receiver_cb(const, (2*np.pi/100), (-0.05), 0.05)
         self.digital_constellation_encoder_bc_0 = digital.constellation_encoder_bc(const)
         self.channels_channel_model_0 = channels.channel_model(
             noise_voltage=noise_voltage,
-            frequency_offset=0.0,
-            epsilon=1.0,
+            frequency_offset=freq_offset,
+            epsilon=epsilon,
             taps=[1.0],
             noise_seed=0,
             block_tags=False)
-        self.blocks_vector_source_x_0 = blocks.vector_source_b((0xE1, 0x5A, 0xE8, 0x93), True, 1, [])
+        self.blocks_vector_source_x_0_0 = blocks.vector_source_b((0xE1, 0x5A, 0xE8, 0x93, 0x00, 0x22, 0x00, 0x22), True, 1, [])
+        self.blocks_unpack_k_bits_bb_1 = blocks.unpack_k_bits_bb(bits_per_symbol)
         self.blocks_unpack_k_bits_bb_0_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(8)
         self.blocks_throttle2_0_0 = blocks.throttle( gr.sizeof_char*1, bit_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * bit_rate) if "auto" == "time" else int(0.1), 1) )
@@ -237,8 +247,12 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.blocks_stream_mux_0 = blocks.stream_mux(gr.sizeof_char*1, (preambulo,payload_len))
         self.blocks_pack_k_bits_bb_1 = blocks.pack_k_bits_bb(bits_per_symbol)
         self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
+        self.blocks_null_sink_0_2 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_null_sink_0_1 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, 'alice.txt', True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
+        self.blocks_char_to_float_1 = blocks.char_to_float(1, 1)
         self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
 
 
@@ -246,6 +260,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_sink_x_1_0, 0))
+        self.connect((self.blocks_char_to_float_1, 0), (self.fec_extended_decoder_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
         self.connect((self.blocks_pack_k_bits_bb_0, 0), (self.network_tcp_sink_0, 0))
         self.connect((self.blocks_pack_k_bits_bb_1, 0), (self.digital_constellation_encoder_bc_0, 0))
@@ -255,23 +270,27 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle2_0_0, 0), (self.blocks_pack_k_bits_bb_1, 0))
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.fec_extended_encoder_0, 0))
         self.connect((self.blocks_unpack_k_bits_bb_0_0, 0), (self.blocks_stream_mux_0, 0))
-        self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_unpack_k_bits_bb_0_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_1, 0), (self.digital_correlate_access_code_xx_ts_0, 0))
+        self.connect((self.blocks_vector_source_x_0_0, 0), (self.blocks_unpack_k_bits_bb_0_0, 0))
         self.connect((self.channels_channel_model_0, 0), (self.interp_fir_filter_xxx_1, 0))
         self.connect((self.digital_constellation_encoder_bc_0, 0), (self.interp_fir_filter_xxx_0, 0))
-        self.connect((self.digital_constellation_soft_decoder_cf_0, 0), (self.epy_block_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_constellation_soft_decoder_cf_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_sink_x_0_0, 0))
-        self.connect((self.epy_block_0, 0), (self.fec_extended_decoder_0, 0))
+        self.connect((self.digital_constellation_encoder_bc_0, 0), (self.qtgui_sink_x_1, 0))
+        self.connect((self.digital_constellation_receiver_cb_0, 1), (self.blocks_null_sink_0_0, 0))
+        self.connect((self.digital_constellation_receiver_cb_0, 2), (self.blocks_null_sink_0_1, 0))
+        self.connect((self.digital_constellation_receiver_cb_0, 3), (self.blocks_null_sink_0_2, 0))
+        self.connect((self.digital_constellation_receiver_cb_0, 0), (self.blocks_unpack_k_bits_bb_1, 0))
+        self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_sink_x_0_0_1, 0))
+        self.connect((self.digital_correlate_access_code_xx_ts_0, 0), (self.blocks_char_to_float_1, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_constellation_receiver_cb_0, 0))
         self.connect((self.fec_extended_decoder_0, 0), (self.blocks_pack_k_bits_bb_0, 0))
         self.connect((self.fec_extended_encoder_0, 0), (self.blocks_stream_mux_0, 1))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.channels_channel_model_0, 0))
-        self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_sink_x_1, 0))
         self.connect((self.interp_fir_filter_xxx_1, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.interp_fir_filter_xxx_1, 0), (self.qtgui_sink_x_0_0_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "ldpc_file_channel")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "test_ldpc_16qam_hard")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -347,8 +366,8 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.set_rrc_filter_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.baud_rate, 0.25, (11*self.sps)))
-        self.qtgui_sink_x_0_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_sink_x_0_0_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_sink_x_0_0_1.set_frequency_range(0, self.samp_rate)
         self.qtgui_sink_x_1.set_frequency_range(0, self.samp_rate)
         self.qtgui_sink_x_1_0.set_frequency_range(0, self.samp_rate)
 
@@ -364,6 +383,15 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
     def set_rrc_filter_taps(self, rrc_filter_taps):
         self.rrc_filter_taps = rrc_filter_taps
         self.set_taps(np.array(self.rrc_filter_taps))
+
+    def get_payload_len(self):
+        return self.payload_len
+
+    def set_payload_len(self, payload_len):
+        self.payload_len = payload_len
+        self.set_payload_len_bytes(self.payload_len/8)
+        self.blocks_stream_to_tagged_stream_0.set_packet_len((self.preambulo + self.payload_len))
+        self.blocks_stream_to_tagged_stream_0.set_packet_len_pmt((self.preambulo + self.payload_len))
 
     def get_ldpc_H_matrix(self):
         return self.ldpc_H_matrix
@@ -387,14 +415,11 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
         self.blocks_stream_to_tagged_stream_0.set_packet_len((self.preambulo + self.payload_len))
         self.blocks_stream_to_tagged_stream_0.set_packet_len_pmt((self.preambulo + self.payload_len))
 
-    def get_payload_len(self):
-        return self.payload_len
+    def get_payload_len_bytes(self):
+        return self.payload_len_bytes
 
-    def set_payload_len(self, payload_len):
-        self.payload_len = payload_len
-        self.blocks_stream_to_tagged_stream_0.set_packet_len((self.preambulo + self.payload_len))
-        self.blocks_stream_to_tagged_stream_0.set_packet_len_pmt((self.preambulo + self.payload_len))
-        self.epy_block_0.payload_len_in_bits = self.payload_len
+    def set_payload_len_bytes(self, payload_len_bytes):
+        self.payload_len_bytes = payload_len_bytes
 
     def get_noise_voltage(self):
         return self.noise_voltage
@@ -415,20 +440,32 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
     def set_ldpc_decoder(self, ldpc_decoder):
         self.ldpc_decoder = ldpc_decoder
 
+    def get_freq_offset(self):
+        return self.freq_offset
+
+    def set_freq_offset(self, freq_offset):
+        self.freq_offset = freq_offset
+        self.channels_channel_model_0.set_frequency_offset(self.freq_offset)
+
+    def get_epsilon(self):
+        return self.epsilon
+
+    def set_epsilon(self, epsilon):
+        self.epsilon = epsilon
+        self.channels_channel_model_0.set_timing_offset(self.epsilon)
+
     def get_const(self):
         return self.const
 
     def set_const(self, const):
         self.const = const
         self.digital_constellation_encoder_bc_0.set_constellation(self.const)
-        self.digital_constellation_soft_decoder_cf_0.set_constellation(self.const)
 
     def get_access_code(self):
         return self.access_code
 
     def set_access_code(self, access_code):
         self.access_code = access_code
-        self.epy_block_0.access_code = self.access_code
 
     def get_K(self):
         return self.K
@@ -439,7 +476,7 @@ class ldpc_file_channel(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=ldpc_file_channel, options=None):
+def main(top_block_cls=test_ldpc_16qam_hard, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 
